@@ -136,7 +136,7 @@ QVector<float> BD::CarregaVet(QString arquivo)
 {
 	QFile arq(arquivo);
 	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text))
-		return QVector<float>::QVector(0);
+                return QVector<float>(0);
 
 	QTextStream entrada(&arq);
 

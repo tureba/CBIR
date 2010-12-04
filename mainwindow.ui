@@ -156,14 +156,82 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuBase_de_Dados">
+    <property name="title">
+     <string>Base de Dados</string>
+    </property>
+    <addaction name="actionAbrir"/>
+    <addaction name="actionSalvar"/>
+    <addaction name="actionFechar"/>
+    <addaction name="actionSair"/>
+   </widget>
+   <widget class="QMenu" name="menuImagem">
+    <property name="title">
+     <string>Imagem</string>
+    </property>
+    <addaction name="actionAdicionar"/>
+    <addaction name="actionRemover"/>
+   </widget>
+   <widget class="QMenu" name="menuBusca">
+    <property name="title">
+     <string>Busca</string>
+    </property>
+    <addaction name="actionPor_n_mero_de_respostas"/>
+    <addaction name="actionPor_dist_ncia"/>
+   </widget>
+   <addaction name="menuBase_de_Dados"/>
+   <addaction name="menuImagem"/>
+   <addaction name="menuBusca"/>
   </widget>
+  <action name="actionPor_n_mero_de_respostas">
+   <property name="text">
+    <string>Por número de respostas</string>
+   </property>
+  </action>
+  <action name="actionPor_dist_ncia">
+   <property name="text">
+    <string>Por distância</string>
+   </property>
+  </action>
+  <action name="actionAdicionar">
+   <property name="text">
+    <string>Adicionar</string>
+   </property>
+  </action>
+  <action name="actionRemover">
+   <property name="text">
+    <string>Remover</string>
+   </property>
+  </action>
+  <action name="actionAbrir">
+   <property name="text">
+    <string>Abrir</string>
+   </property>
+  </action>
+  <action name="actionSalvar">
+   <property name="text">
+    <string>Salvar</string>
+   </property>
+  </action>
+  <action name="actionFechar">
+   <property name="text">
+    <string>Fechar</string>
+   </property>
+  </action>
+  <action name="actionSair">
+   <property name="text">
+    <string>Sair</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
