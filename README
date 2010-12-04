@@ -1,0 +1,78 @@
+==========================================================================
+
+    Trabalho da disciplina "Recuperação de Dados Pelo Conteúdo"
+    Copyright (C) 2010 Arthur 'tureba' Nascimento <tureba@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, version 3 of the License.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program in a file called gpl.txt.
+    If not, see <http://www.gnu.org/licenses/>.
+
+==========================================================================
+
+--------------------------------------------------------------------------
+*       Trabalho da disciplina "Recuperação de Dados Pelo Conteúdo"      *
+*     Arthur 'tureba' Nascimento - tureba@gmail.com - nº USP 5634455     *
+*                   ICMC - USP - 2º Semestre de 2010                     *
+*                    http://github.com/tureba/CBIR                       *
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+Proposta:
+
+  Implementar um sistema de recuperação de imagens por similaridade
+de características. O sistema deve poder responder a duas perguntas
+previstas: 1) Quais são as N imagens do BD que estão mais próximas da
+imagem fornecida? e 2) Quais imagens do BD estão a até uma distância R
+da imagem fornecida? Para ambas as perguntas, devem ser usados os vetores
+de características extraídos de todas as imagens do BD e da imagem de
+referência fornecida na consulta, assim como uma das funções de distância
+escolhida no acionamento da busca.
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+Requisitos:
+
+- Interface com o usuário;
+- Ao menos 4 funções de distância/similaridade;
+- Ao menos 2 algoritmos de extração de vetores de características;
+- E, ou o uso de uma estrutura de dados multidimensional;
+- Ou a implementação de um algoritmo de realimentação de relevância.
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+Progresso:
+
+  O sistema está sendo desenvolvido em C++ com o auxílio da biblioteca Qt,
+que implementa a interface, e da biblioteca arboretum, que fornece uma
+estrutura de dados multidimensional customizável.
+
+As funções de distância e similaridade implementadas até o momento foram:
+ - Distância de Minkowski com parâmetro 2 (Distância Euclidiana);
+ - Distância Irakura-Saito;
+ - Divergência de Kullback-Leibler;
+ - Dissimilaridade dos Cossenos.
+
+As funções de extração de características implementadas até o momento:
+ - Histograma;
+ - Matriz de Co-Ocorrência com uma distância (1 pixel) e quatro
+   ângulos (0, 45, 90 e 135).
+
+Entre o uso de uma estrutura de dados muldidimensional e a implementação de
+um algoritmo de realimentação de relevância foi escolhida a primeira opção
+através do uso da biblioteca Arboretum, desenvolvida pelo GBDI/ICMC/USP, que
+pode ser obtida de http://www.gbdi.icmc.usp.br/old/arboretum/ (ou uma versão
+com correções minhas em http://github.com/tureba/arboretum).
+--------------------------------------------------------------------------
+
+
+Para mais informações sobre o projeto, visite o repositório do autor:
+        http://github.com/tureba/CBIR

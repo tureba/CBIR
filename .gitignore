@@ -1,5 +1,6 @@
 *~
 *.o
+.*.swp
 CBIR.pro.user
 bd/
 CBIR
