@@ -1,7 +1,7 @@
 #include <QtGui/QApplication>
 #include "mainwindow.h"
 
-#include "bd.h"
+#include "BD.h"
 
 int main(int argc, char *argv[])
 {

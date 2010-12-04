@@ -5,28 +5,28 @@
 #include <QSet>
 #include <QString>
 
-#include "Extratores.h"
-#include "Distancias.h"
-
 class BD
 {
 private:
 	QString nome, dir_base;
 
-	typedef QVector<float> (* FcExtracaoDeCaracteristicas)(QImage);
-	typedef float (* FcDistancia)(QVector<float>, QVector<float>);
-
 	bool usaHistograma;
 	bool usaMatrizCoOcorrencia;
 
-	FcDistancia fDist;
+	typedef enum {
+			fDistMinkowski = 1,
+			fDistItakuraSaito = 2,
+			fDistKullbackLeibler = 3,
+			fDistCosseno = 4,
+		} t_fDist;
+	t_fDist fDist;
 
 	QSet<QString> imagens;
 public:
 	BD(QString nomeBD);
 
 	void alteraFuncaoDistancia(QString f);
-	void alteraFuncaoDistancia(FcDistancia f);
+	void alteraFuncaoDistancia(t_fDist f);
 
 	void adicionaFuncaoExtracao(QString f);
 
@@ -42,6 +42,14 @@ public:
 
 	void salvaVet(QVector<float> vet, QString arquivo);
 	QVector<float> CarregaVet(QString arquivo);
+
+	float distMinkowski(QVector<float> a, QVector<float> b);
+	float distItakuraSaito(QVector<float> a, QVector<float> b);
+	float distKullbackLeibler(QVector<float> a, QVector<float> b);
+	float distCosseno(QVector<float> a, QVector<float> b);
+
+	QVector<float> extrairHistograma(QImage imagem);
+	QVector<float> extrairMatrizCoOcorrencia(QImage imagem);
 };
 
 #endif // BD_H

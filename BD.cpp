@@ -1,11 +1,16 @@
-#include "bd.h"
+#include "BD.h"
 
 #include <QCryptographicHash>
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
+#include <QImage>
+#include <QVector>
 
-BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/CBIR/bd/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(distCosseno)
+#include <algorithm>
+#include <cmath>
+
+BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/CBIR/bd/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
 {
 	QFile arq(dir_base + nome + ".bd");
 	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -38,19 +43,18 @@ BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/CBIR/bd/"), usaHistograma(fals
 void BD::alteraFuncaoDistancia(QString f)
 {
 	if (f == "Minkowski")
-		fDist = distMinkowski;
+		fDist = fDistMinkowski;
 	else if (f == "ItakuraSaito")
-		fDist = distItakuraSaito;
-	else if (f == "KullbackLeibner")
-		fDist = distKullbackLeibner;
+		fDist = fDistItakuraSaito;
+	else if (f == "KullbackLeibler")
+		fDist = fDistKullbackLeibler;
 	else if (f == "Cosseno")
-		fDist = distCosseno;
+		fDist = fDistCosseno;
 	else
-		fDist = distCosseno;
-
+		fDist = fDistCosseno;
 }
 
-void BD::alteraFuncaoDistancia(FcDistancia f)
+void BD::alteraFuncaoDistancia(t_fDist f)
 {
 	fDist = f;
 }
@@ -144,10 +148,89 @@ QVector<float> BD::CarregaVet(QString arquivo)
 	QVector<float> resultado;
 
 	while (!arq.atEnd()) {
-	    entrada >> x;
-	    resultado.append(x);
+		entrada >> x;
+		resultado.append(x);
 	}
 	arq.close();
 
+	return resultado;
+}
+
+float BD::distMinkowski(QVector<float> a, QVector<float> b)
+{
+	float resultado = 0;
+
+	for (int i = 0; i < std::min(a.size(), b.size()); i++)
+		resultado += std::pow(std::abs(a[i] - b[i]), 2);
+
+	return std::sqrt(resultado);
+}
+
+float BD::distItakuraSaito(QVector<float> a, QVector<float> b)
+{
+	float resultado = 0;
+
+	for (int i = 0; i < std::min(a.size(), b.size()); i++)
+		if ((a[i] != .0f) && (b[i] != .0f))
+			resultado += (a[i] / b[i]) - std::log(a[i] / b[i]) - 1;
+
+	return resultado;
+}
+
+float BD::distKullbackLeibler(QVector<float> a, QVector<float> b)
+{
+	float resultado = 0;
+
+	for (int i = 0; i < std::min(a.size(), b.size()); i++)
+		if ((a[i] != .0f) && (b[i] != .0f))
+			resultado += a[i] * std::log(a[i] / b[i]);
+
+	return resultado;
+}
+
+float BD::distCosseno(QVector<float> a, QVector<float> b)
+{
+	float dot = 0, u = 0, v = 0;
+
+	for (int i = 0; i < std::min(a.size(), b.size()); i++) {
+		dot += a[i] * b[i];
+		u += a[i] * a[i];
+		v += b[i] * b[i];
+	}
+
+	return dot/(std::sqrt(u) + std::sqrt(v));
+}
+
+QVector<float> BD::extrairHistograma(QImage imagem)
+{
+	QVector<float> valores(256, 0);
+
+	for (int i = 0; i < imagem.width(); i++)
+		for (int j = 0; j < imagem.height(); j++)
+			valores[qGray(imagem.pixel(i,j))]++;
+
+	return valores;
+
+}
+
+QVector<float> BD::extrairMatrizCoOcorrencia(QImage imagem)
+{
+	QVector<float> valores1(256 * 256, 0);
+	QVector<float> valores2(256 * 256, 0);
+	QVector<float> valores3(256 * 256, 0);
+	QVector<float> valores4(256 * 256, 0);
+
+	for (int i = 1; i < imagem.width() - 1; i++) {
+		for (int j = 1; j < imagem.height() - 1; j++) {
+			valores1[qGray(imagem.pixel(i,j)) + qGray(imagem.pixel(i+1,j)) * 256]++;
+			valores2[qGray(imagem.pixel(i,j)) + qGray(imagem.pixel(i+1,j+1)) * 256]++;
+			valores3[qGray(imagem.pixel(i,j)) + qGray(imagem.pixel(i,j+1)) * 256]++;
+			valores4[qGray(imagem.pixel(i,j)) + qGray(imagem.pixel(i-1,j+1)) * 256]++;
+		}
+	}
+
+	QVector<float> resultado(valores1 + valores2 + valores3 + valores4);
+	for (int i = 0; i < resultado.size(); i++)
+		resultado[i] /= ((imagem.width() - 2) * (imagem.height() - 2));
 	return resultado;
 }
