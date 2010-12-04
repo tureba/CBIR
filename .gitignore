@@ -1,6 +1,8 @@
 *~
 *.o
 .*.swp
+moc_*.cpp
+ui_*.h
 CBIR.pro.user
 bd/
 CBIR
