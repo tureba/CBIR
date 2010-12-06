@@ -1,20 +1,23 @@
 #include "BD.h"
 
-#include <QCryptographicHash>
-#include <QFile>
-#include <QStringList>
-#include <QTextStream>
-#include <QImage>
-#include <QVector>
+#include <QtCore/QCryptographicHash>
+#include <QtCore/QFile>
+#include <QtCore/QStringList>
+#include <QtCore/QTextStream>
+#include <QtCore/QVector>
+#include <QtGui/QImage>
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
-BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/CBIR/bd/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
+BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/.CBIR/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
 {
 	QFile arq(dir_base + nome + ".bd");
-	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text))
+	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		std::cerr << arq.fileName().toStdString() << ": " << arq.error() << std::endl;
 		return;
+	}
 
 	QTextStream in(&arq);
 	while (!in.atEnd()) {
@@ -38,6 +41,48 @@ BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/CBIR/bd/"), usaHistograma(fals
 			imagens.insert(linha.trimmed());
 		}
 	}
+}
+
+BD::~BD()
+{
+	QFile arq(dir_base + nome + ".bd");
+	if (!arq.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Append)) {
+		std::cerr << arq.fileName().toStdString() << ": " << arq.error() << std::endl;
+		return;
+	}
+
+	QTextStream saida(&arq);
+
+	saida << "fdist = ";
+	switch (fDist) {
+	case 1:
+		saida << "Minkowski";
+		break;
+	case 2:
+		saida << "ItakuraSaito";
+		break;
+	case 3:
+		saida << "KullbackLeibler";
+		break;
+	case 4:
+		saida << "Cosseno";
+		break;
+	}
+	saida << '\n';
+
+	saida << "fext = ";
+	if (usaHistograma)
+		saida << "hist";
+	if (usaHistograma && usaMatrizCoOcorrencia)
+		saida << ",";
+	if (usaMatrizCoOcorrencia)
+		saida << "matco";
+	saida << '\n';
+
+	for (auto it = imagens.begin(); it != imagens.end(); it++)
+		saida << *it << '\n';
+	saida.flush();
+	arq.close();
 }
 
 void BD::alteraFuncaoDistancia(QString f)
@@ -106,8 +151,7 @@ void BD::calcCaracteristicas(QString hash)
 QString BD::calcHash(QImage imagem) const
 {
 	QByteArray pixels = QByteArray(reinterpret_cast<const char *>(imagem.bits()), imagem.byteCount());
-	QByteArray _hash = QCryptographicHash::hash(pixels, QCryptographicHash::Sha1);
-	QString hash(_hash);
+	QString hash(QCryptographicHash::hash(pixels, QCryptographicHash::Sha1));
 	//coloca a imagem no disco endereçando pelo hash
 	imagem.save(dir_base + hash + ".bmp");
 	return hash;
@@ -136,11 +180,11 @@ void BD::salvaVet(QVector<float> vet, QString arquivo)
 	arq.close();
 }
 
-QVector<float> BD::CarregaVet(QString arquivo)
+QVector<float> BD::carregaVet(QString arquivo)
 {
 	QFile arq(arquivo);
 	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text))
-                return QVector<float>(0);
+		return QVector<float>(0);
 
 	QTextStream entrada(&arq);
 

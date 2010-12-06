@@ -3,7 +3,7 @@
 .*.swp
 moc_*.cpp
 ui_*.h
-CBIR.pro.user
+CBIR.pro.user*
 bd/
 CBIR
 Makefile

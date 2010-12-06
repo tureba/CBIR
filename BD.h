@@ -1,9 +1,9 @@
 #ifndef BD_H
 #define BD_H
 
-#include <QImage>
-#include <QSet>
-#include <QString>
+#include <QtCore/QSet>
+#include <QtCore/QString>
+#include <QtGui/QImage>
 
 class BD
 {
@@ -24,6 +24,7 @@ private:
 	QSet<QString> imagens;
 public:
 	BD(QString nomeBD);
+	~BD();
 
 	void alteraFuncaoDistancia(QString f);
 	void alteraFuncaoDistancia(t_fDist f);
@@ -41,7 +42,7 @@ public:
 	QString calcHash(QString nomeImagem) const;
 
 	void salvaVet(QVector<float> vet, QString arquivo);
-	QVector<float> CarregaVet(QString arquivo);
+	QVector<float> carregaVet(QString arquivo);
 
 	float distMinkowski(QVector<float> a, QVector<float> b);
 	float distItakuraSaito(QVector<float> a, QVector<float> b);
