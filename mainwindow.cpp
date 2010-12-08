@@ -32,28 +32,31 @@ void MainWindow::changeEvent(QEvent *e)
 void MainWindow::enterImagem()
 {
 	QString nome = ui->lineEdit->text();
-	if (!nome.isEmpty()) {
+	if (QFile::exists(nome)) {
 		QImage image(nome);
 		if (image.isNull()) {
 			QMessageBox::information(this, tr("Image Viewer"), tr("Cannot load %1.").arg(nome));
 			return;
 		}
+		files.clear();
+		files.append(nome);
 		ui->imageLabel->setPixmap(QPixmap::fromImage(image));
 	}
 }
 
 void MainWindow::abreDialogImagem()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
-	if (!fileName.isEmpty()) {
-		QImage image(fileName);
-		if (image.isNull()) {
-			QMessageBox::information(this, tr("Image Viewer"), tr("Cannot load %1.").arg(fileName));
-			return;
+	files = QFileDialog::getOpenFileNames(this, tr("Open File"), QDir::currentPath(), "Imagens (*.bmp *.png *.xpm *.jpg)");
+	for (auto it = files.begin(); it != files.end(); it++)
+		if (!QFile::exists(*it)) {
+			QImage image(*it);
+			if (image.isNull()) {
+				QMessageBox::information(this, tr("Image Viewer"), tr("Cannot load %1.").arg(*it));
+				continue;
+			}
+			//ui->imageLabel->setPixmap(QPixmap::fromImage(image));
 		}
-		ui->lineEdit->setText(fileName);
-		ui->imageLabel->setPixmap(QPixmap::fromImage(image));
-	}
+	ui->lineEdit->setText(files.join("; "));
 }
 
 void MainWindow::enterBD()
@@ -113,8 +116,13 @@ void MainWindow::escolheMetrica(int valor)
 
 void MainWindow::adicionaImagem()
 {
-	if ((bd != NULL) && (QFile::exists(ui->lineEdit->text()))) {
-		bd->insereImagem(bd->calcHash(ui->lineEdit->text()));
+	if (bd != NULL) {
+		for (auto it = files.begin(); it != files.end(); it++)
+			if (QFile::exists(*it)) {
+				QString hash = bd->calcHash(*it);
+				if (!hash.isEmpty())
+					bd->insereImagem(hash);
+			}
 		atualizaBD();
 	}
 }
@@ -150,7 +158,7 @@ void MainWindow::atualizaBD()
 		QLabel * imagem;
 		for (auto it = bd->imagens.begin(); it != bd->imagens.end(); it++) {
 			imagem = new QLabel();
-			imagem->setPixmap(QPixmap::fromImage(bd->retornaImagem(*it)));
+			imagem->setPixmap(QPixmap::fromImage(bd->retornaImagem(*it).scaledToWidth(100)));
 			ui->gridLayout->addWidget(imagem);
 		}
 	}

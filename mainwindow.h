@@ -31,6 +31,7 @@ protected:
 private:
 	Ui::MainWindow *ui;
 	BD *bd;
+	QStringList files;
 
 public slots:
 	void enterImagem();

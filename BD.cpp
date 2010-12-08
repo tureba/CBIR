@@ -38,7 +38,8 @@ BD::BD(QString nomeBD): arq(nomeBD), dir_base(QFileInfo(nomeBD).path() + "/"), u
 					adicionaFuncaoExtracao((*it).trimmed());
 			}
 		} else {
-			imagens.insert(linha.trimmed());
+			if (!linha.trimmed().isEmpty())
+				imagens.insert(linha.trimmed());
 		}
 	}
 
