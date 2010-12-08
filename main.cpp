@@ -5,7 +5,6 @@
 
 int main(int argc, char *argv[])
 {
-	BD bd("teste");
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();

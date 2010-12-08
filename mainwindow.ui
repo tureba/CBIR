@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>359</height>
+    <width>933</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>720</x>
       <y>10</y>
       <width>201</width>
-      <height>321</height>
+      <height>331</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -99,9 +99,9 @@
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>280</y>
-       <width>161</width>
+       <x>100</x>
+       <y>290</y>
+       <width>91</width>
        <height>24</height>
       </rect>
      </property>
@@ -136,7 +136,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>90</y>
+       <y>100</y>
        <width>181</width>
        <height>181</height>
       </rect>
@@ -154,43 +154,226 @@
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>290</y>
+       <width>91</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Adicionar</string>
+     </property>
+    </widget>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>600</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuBase_de_Dados">
-    <property name="title">
-     <string>Base de Dados</string>
+   <widget class="QFrame" name="frame_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>350</y>
+      <width>911</width>
+      <height>311</height>
+     </rect>
     </property>
-    <addaction name="actionAbrir"/>
-    <addaction name="actionSalvar"/>
-    <addaction name="actionFechar"/>
-    <addaction name="actionSair"/>
-   </widget>
-   <widget class="QMenu" name="menuImagem">
-    <property name="title">
-     <string>Imagem</string>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
-    <addaction name="actionAdicionar"/>
-    <addaction name="actionRemover"/>
-   </widget>
-   <widget class="QMenu" name="menuBusca">
-    <property name="title">
-     <string>Busca</string>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
-    <addaction name="actionPor_n_mero_de_respostas"/>
-    <addaction name="actionPor_dist_ncia"/>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>891</width>
+       <height>291</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>885</width>
+        <height>285</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
+         </property>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
-   <addaction name="menuBase_de_Dados"/>
-   <addaction name="menuImagem"/>
-   <addaction name="menuBusca"/>
+   <widget class="QFrame" name="frame_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>701</width>
+      <height>331</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QScrollArea" name="scrollArea_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>681</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>675</width>
+        <height>275</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
+         </property>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QComboBox" name="comboBox">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>10</y>
+       <width>141</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Cosseno</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Minkowski (p=2)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Itakura-Saito</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kullback-Leibler</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QComboBox" name="comboBox_2">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>10</y>
+       <width>171</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Histograma+Matriz de Co-Ocorrência</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Matriz de Co-Ocorrência</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Histograma</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>500</x>
+       <y>10</y>
+       <width>56</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>56</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Métrica:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>10</y>
+       <width>92</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Características:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>151</width>
+       <height>25</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_4">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>10</y>
+       <width>31</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <action name="actionPor_n_mero_de_respostas">
    <property name="text">
@@ -235,5 +418,127 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>abreDialogBD()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>198</x>
+     <y>34</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>abreDialogImagem()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>901</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>928</x>
+     <y>38</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox_2</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>escolheVC(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>484</x>
+     <y>4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>adicionaImagem()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>791</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>834</x>
+     <y>345</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit_2</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>enterBD()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>37</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>enterImagem()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>844</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>884</x>
+     <y>4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>escolheMetrica(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>689</x>
+     <y>31</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>689</x>
+     <y>-8</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>abreDialogBD()</slot>
+  <slot>abreDialogImagem()</slot>
+  <slot>enterImagem()</slot>
+  <slot>enterBD()</slot>
+  <slot>escolheVC(int)</slot>
+  <slot>adicionaImagem()</slot>
+  <slot>escolheMetrica(int)</slot>
+ </slots>
 </ui>

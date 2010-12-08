@@ -2,6 +2,7 @@
 
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 #include <QtCore/QVector>
@@ -11,11 +12,10 @@
 #include <cmath>
 #include <iostream>
 
-BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/.CBIR/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
+BD::BD(QString nomeBD): arq(nomeBD), dir_base(QFileInfo(nomeBD).path() + "/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
 {
-	QFile arq(dir_base + nome + ".bd");
-	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		std::cerr << arq.fileName().toStdString() << ": " << arq.error() << std::endl;
+	if (!arq.open(QIODevice::ReadWrite | QIODevice::Text)) {
+		std::cerr << "BD::BD(" << arq.fileName().toStdString() << "): erro ao abrir o arquivo de BD." << std::endl;
 		return;
 	}
 
@@ -30,9 +30,9 @@ BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/.CBIR/"), usaHistograma(false)
 		//então é da forma chave=valor
 		if (linha.contains('=')) {
 			QStringList l(linha.split('='));
-			if (l[0] == "fdist")
+			if (l[0].trimmed() == "fdist")
 				alteraFuncaoDistancia(l[1].trimmed());
-			else if (l[0] == "fext") {
+			else if (l[0].trimmed() == "fext") {
 				l = l[1].split(",", QString::SkipEmptyParts);
 				for (auto it = l.begin(); it != l.end(); it++)
 					adicionaFuncaoExtracao((*it).trimmed());
@@ -41,15 +41,31 @@ BD::BD(QString nomeBD): nome(nomeBD), dir_base("~/.CBIR/"), usaHistograma(false)
 			imagens.insert(linha.trimmed());
 		}
 	}
+
+#ifdef DEBUG
+	std::cerr << "BD::BD(" << arq.fileName().toStdString() << "):" << std::endl;
+	std::cerr << "\tdir_base = " << dir_base.toStdString() << std::endl;
+	std::cerr << "\tfdist = " << fDist << std::endl;
+	std::cerr << "\tfext(hist) = " << usaHistograma << std::endl;
+	std::cerr << "\tfext(matco) = " << usaMatrizCoOcorrencia << std::endl;
+	for (auto it = imagens.begin(); it != imagens.end(); it++)
+		std::cerr << "\t\t" << (*it).toStdString() << std::endl;
+#endif
 }
 
 BD::~BD()
 {
-	QFile arq(dir_base + nome + ".bd");
-	if (!arq.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Append)) {
-		std::cerr << arq.fileName().toStdString() << ": " << arq.error() << std::endl;
-		return;
-	}
+#ifdef DEBUG
+	std::cerr << "BD::~BD() (arq = " << arq.fileName().toStdString() << "):" << std::endl;
+	std::cerr << "\tfdist = " << fDist << std::endl;
+	std::cerr << "\tfext(hist) = " << usaHistograma << std::endl;
+	std::cerr << "\tfext(matco) = " << usaMatrizCoOcorrencia << std::endl;
+	for (auto it = imagens.begin(); it != imagens.end(); it++)
+		std::cerr << "\t\t" << (*it).toStdString() << std::endl;
+#endif
+
+	arq.seek(0);
+	arq.resize(0);
 
 	QTextStream saida(&arq);
 
@@ -112,10 +128,21 @@ void BD::adicionaFuncaoExtracao(QString f)
 		usaMatrizCoOcorrencia = true;
 }
 
+void BD::removeFuncaoExtracao(QString f)
+{
+	if (f == "hist")
+		usaHistograma = false;
+	else if (f == "matco")
+		usaMatrizCoOcorrencia = false;
+}
+
 bool BD::insereImagem(QString hash)
 {
 	bool ret = imagens.contains(hash);
 	if (!ret) {
+#ifdef DEBUG
+		std::cerr << "BD::insereImagem: " << hash.toStdString() << std::endl;
+#endif
 		imagens.insert(hash);
 		calcCaracteristicas(hash);
 	}
@@ -129,6 +156,10 @@ bool BD::removeImagem(QString hash)
 		imagens.remove(hash);
 	return ret;
 }
+QImage BD::retornaImagem(QString hash)
+{
+	return QImage(dir_base + hash + ".bmp");
+}
 /*
 QVector<float> BD::buscaVC(QString hash)
 {
@@ -137,21 +168,17 @@ QVector<float> BD::buscaVC(QString hash)
 */
 void BD::calcCaracteristicas(QString hash)
 {
-	if (usaHistograma)
-		for (auto it = imagens.begin(); it != imagens.end(); it++)
-			if (!QFile::exists(dir_base + hash + ".histograma"))
-				salvaVet(extrairHistograma(QImage(dir_base + hash + ".bmp")), dir_base + hash + ".histograma");
+	if ((usaHistograma) && (!QFile::exists(dir_base + hash + ".histograma")))
+		salvaVet(extrairHistograma(QImage(dir_base + hash + ".bmp")), dir_base + hash + ".histograma");
 
-	if (usaMatrizCoOcorrencia)
-		for (auto it = imagens.begin(); it != imagens.end(); it++)
-			if (!QFile::exists(dir_base + hash + ".matrizcoocorrencia"))
-				salvaVet(extrairMatrizCoOcorrencia(QImage(dir_base + hash + ".bmp")), dir_base + hash + ".matrizcoocorrencia");
+	if ((usaMatrizCoOcorrencia) && (!QFile::exists(dir_base + hash + ".matrizcoocorrencia")))
+		salvaVet(extrairMatrizCoOcorrencia(QImage(dir_base + hash + ".bmp")), dir_base + hash + ".matrizcoocorrencia");
 }
 
 QString BD::calcHash(QImage imagem) const
 {
 	QByteArray pixels = QByteArray(reinterpret_cast<const char *>(imagem.bits()), imagem.byteCount());
-	QString hash(QCryptographicHash::hash(pixels, QCryptographicHash::Sha1));
+	QString hash(QCryptographicHash::hash(pixels, QCryptographicHash::Sha1).toHex());
 	//coloca a imagem no disco endereçando pelo hash
 	imagem.save(dir_base + hash + ".bmp");
 	return hash;
@@ -168,34 +195,37 @@ QString BD::calcHash(QString nomeImagem) const
 
 void BD::salvaVet(QVector<float> vet, QString arquivo)
 {
-	QFile arq(arquivo);
-	if (!arq.open(QIODevice::WriteOnly | QIODevice::Text))
+	QFile _arq(arquivo);
+#ifdef DEBUG
+	std::cerr << "BD::salvaVet(): salvando " << arquivo.toStdString() << "..." << std::endl;
+#endif
+	if (!_arq.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		std::cerr << "BD::salvaVet(vet, " << arquivo.toStdString() << "): erro ao abrir o arquivo par escrita." << std::endl;
 		return;
+	}
 
-	QTextStream saida(&arq);
+	QDataStream saida(&_arq);
 
-	for (auto it = vet.begin(); it != vet.end(); it++)
-		saida << *it << " ";
-	saida.flush();
-	arq.close();
+	saida << vet;
+	_arq.close();
 }
 
 QVector<float> BD::carregaVet(QString arquivo)
 {
-	QFile arq(arquivo);
-	if (!arq.open(QIODevice::ReadOnly | QIODevice::Text))
+	QFile _arq(arquivo);
+	if (!_arq.open(QIODevice::ReadOnly | QIODevice::Text))
 		return QVector<float>(0);
 
-	QTextStream entrada(&arq);
+	QTextStream entrada(&_arq);
 
 	float x;
 	QVector<float> resultado;
 
-	while (!arq.atEnd()) {
+	while (!_arq.atEnd()) {
 		entrada >> x;
 		resultado.append(x);
 	}
-	arq.close();
+	_arq.close();
 
 	return resultado;
 }

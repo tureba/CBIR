@@ -1,18 +1,21 @@
 #ifndef BD_H
 #define BD_H
 
+#include <QtCore/QFile>
 #include <QtCore/QSet>
 #include <QtCore/QString>
 #include <QtGui/QImage>
 
 class BD
 {
-private:
-	QString nome, dir_base;
+public:
+	QFile arq;
+	QString dir_base;
 
 	bool usaHistograma;
 	bool usaMatrizCoOcorrencia;
 
+	QSet<QString> imagens;
 	typedef enum {
 			fDistMinkowski = 1,
 			fDistItakuraSaito = 2,
@@ -21,8 +24,6 @@ private:
 		} t_fDist;
 	t_fDist fDist;
 
-	QSet<QString> imagens;
-public:
 	BD(QString nomeBD);
 	~BD();
 
@@ -30,9 +31,11 @@ public:
 	void alteraFuncaoDistancia(t_fDist f);
 
 	void adicionaFuncaoExtracao(QString f);
+	void removeFuncaoExtracao(QString f);
 
 	bool insereImagem(QString hash);
 	bool removeImagem(QString hash);
+	QImage retornaImagem(QString hash);
 
 	QVector<float> buscaVC(QString hash);
 
