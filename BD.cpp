@@ -12,6 +12,9 @@
 #include <cmath>
 #include <iostream>
 
+#include <arboretum/stDBMTree.h>
+#include <arboretum/stPlainDiskPageManager.h>
+
 BD::BD(QString nomeBD): arq(nomeBD), dir_base(QFileInfo(nomeBD).path() + "/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
 {
 	if (!arq.open(QIODevice::ReadWrite | QIODevice::Text)) {
@@ -139,15 +142,18 @@ void BD::removeFuncaoExtracao(QString f)
 
 bool BD::insereImagem(QString hash)
 {
-	bool ret = imagens.contains(hash);
-	if (!ret) {
+	if (!hash.isEmpty()) {
+		bool ret = imagens.contains(hash);
+		if (!ret) {
 #ifdef DEBUG
-		std::cerr << "BD::insereImagem: " << hash.toStdString() << std::endl;
+			std::cerr << "BD::insereImagem: " << hash.toStdString() << std::endl;
 #endif
-		imagens.insert(hash);
-		calcCaracteristicas(hash);
-	}
-	return ret;
+			imagens.insert(hash);
+			calcCaracteristicas(hash);
+		}
+		return ret;
+	} else
+		return false;
 }
 
 bool BD::removeImagem(QString hash)
@@ -157,16 +163,12 @@ bool BD::removeImagem(QString hash)
 		imagens.remove(hash);
 	return ret;
 }
+
 QImage BD::retornaImagem(QString hash)
 {
 	return QImage(dir_base + hash + ".bmp");
 }
-/*
-QVector<float> BD::buscaVC(QString hash)
-{
-	return ;
-}
-*/
+
 void BD::calcCaracteristicas(QString hash)
 {
 	if ((usaHistograma) && (!QFile::exists(dir_base + hash + ".histograma")))
@@ -308,4 +310,123 @@ QVector<float> BD::extrairMatrizCoOcorrencia(QImage imagem)
 	for (int i = 0; i < resultado.size(); i++)
 		resultado[i] /= ((imagem.width() - 2) * (imagem.height() - 2));
 	return resultado;
+}
+
+QStringList BD::buscaN(QImage imagem, int n)
+{
+	if ((imagem.isNull()) || (n <= 0))
+		return QStringList();
+
+	QVector<float> VC;
+	if (usaHistograma)
+		VC += extrairHistograma(imagem);
+	if (usaMatrizCoOcorrencia)
+		VC += extrairMatrizCoOcorrencia(imagem);
+
+	/*switch (fDist) {
+	case 1:
+	*/	stDBMTree<HImagem, HImagemCmpMinkowski> arvore(new stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
+	/*	break;
+	case 2:
+		stDBMTree<HImagem, HImagemCmp<distItakuraSaito>> arvore(stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
+		break;
+	case 3:
+		stDBMTree<HImagem, HImagemCmp<distKullbackLeibler>> arvore(stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
+		break;
+	case 4:
+		stDBMTree<HImagem, HImagemCmp<distCosseno>> arvore(stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
+		break;
+	}*/
+
+	QStringList resultado;
+
+	return resultado;
+}
+
+QStringList BD::buscaR(QImage imagem, float r)
+{
+	if ((imagem.isNull()) || (r <= .0f))
+		return QStringList();
+
+	QVector<float> VC;
+	if (usaHistograma)
+		VC += extrairHistograma(imagem);
+	if (usaMatrizCoOcorrencia)
+		VC += extrairMatrizCoOcorrencia(imagem);
+
+	QStringList resultado;
+
+	return resultado;
+}
+
+HImagem::HImagem(QString hash = QString(""), QVector<float> VC = QVector<float>()): _hash(hash), _VC(VC)
+{
+	//construtor vazio
+}
+
+const stByte * HImagem::Serialize()
+{
+
+	stByte *bytes = new stByte[GetSerializedSize()];
+	memcpy(bytes, _hash.data(), 40);
+	memcpy(bytes + 40, _VC.data(), sizeof(float) * _VC.size());
+	return bytes;
+
+}
+
+void HImagem::Unserialize (const stByte *data, stSize datasize)
+{
+
+	_hash = QString(QByteArray(reinterpret_cast<const char *>(data), 40));
+	_VC.reserve(1 + (datasize - 40)/sizeof(float));
+	memcpy(_VC.data(), data + 40, datasize - 40);
+	delete [] data;
+
+}
+
+stSize HImagem::GetSerializedSize()
+{
+
+	return 40 + sizeof(float) * _VC.count();
+
+}
+
+stDistance HImagemCmpCosseno::getDistance(HImagem *i1, HImagem *i2)
+{
+	return BD::distCosseno(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpCosseno::getDistance2(HImagem *i1, HImagem *i2)
+{
+	return BD::distCosseno(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpMinkowski::getDistance(HImagem *i1, HImagem *i2)
+{
+	return BD::distMinkowski(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpMinkowski::getDistance2(HImagem *i1, HImagem *i2)
+{
+	return BD::distMinkowski(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpItakuraSaito::getDistance(HImagem *i1, HImagem *i2)
+{
+	return BD::distItakuraSaito(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpItakuraSaito::getDistance2(HImagem *i1, HImagem *i2)
+{
+	return BD::distItakuraSaito(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpKullbackLeibler::getDistance(HImagem *i1, HImagem *i2)
+{
+	return BD::distKullbackLeibler(i1->_VC, i2->_VC);
+}
+
+stDistance HImagemCmpKullbackLeibler::getDistance2(HImagem *i1, HImagem *i2)
+{
+	return BD::distKullbackLeibler(i1->_VC, i2->_VC);
 }

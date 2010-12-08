@@ -6,6 +6,11 @@
 #include <QtCore/QString>
 #include <QtGui/QImage>
 
+#include <arboretum/stTypes.h>
+#include <arboretum/stMetricEvaluator.h>
+#include <arboretum/stUserLayerUtil.h>
+#include <arboretum/stUtil.h>
+
 class BD
 {
 public:
@@ -23,6 +28,8 @@ public:
 			fDistCosseno = 4,
 		} t_fDist;
 	t_fDist fDist;
+
+	typedef float(*BDFcDist)(QVector<float>, QVector<float>);
 
 	BD(QString nomeBD);
 	~BD();
@@ -47,13 +54,59 @@ public:
 	void salvaVet(QVector<float> vet, QString arquivo);
 	QVector<float> carregaVet(QString arquivo);
 
-	float distMinkowski(QVector<float> a, QVector<float> b);
-	float distItakuraSaito(QVector<float> a, QVector<float> b);
-	float distKullbackLeibler(QVector<float> a, QVector<float> b);
-	float distCosseno(QVector<float> a, QVector<float> b);
+	static float distMinkowski(QVector<float> a, QVector<float> b);
+	static float distItakuraSaito(QVector<float> a, QVector<float> b);
+	static float distKullbackLeibler(QVector<float> a, QVector<float> b);
+	static float distCosseno(QVector<float> a, QVector<float> b);
 
 	QVector<float> extrairHistograma(QImage imagem);
 	QVector<float> extrairMatrizCoOcorrencia(QImage imagem);
+
+	QStringList buscaN(QImage imagem, int n);
+	QStringList buscaR(QImage imagem, float r);
+};
+
+class HImagem : stObject
+{
+
+public:
+	QString _hash;
+	QVector<float> _VC;
+
+	HImagem(QString hash, QVector<float> VC);
+
+	const stByte * Serialize();
+	void Unserialize (const stByte *data, stSize datasize);
+	stSize GetSerializedSize();
+
+};
+
+class HImagemCmpCosseno: public stMetricEvaluator
+{
+public:
+	stDistance getDistance(HImagem *i1, HImagem *i2);
+	stDistance getDistance2(HImagem *i1, HImagem *i2);
+};
+
+class HImagemCmpMinkowski: public stMetricEvaluator
+{
+public:
+	stDistance getDistance(HImagem *i1, HImagem *i2);
+	stDistance getDistance2(HImagem *i1, HImagem *i2);
+};
+
+class HImagemCmpItakuraSaito: public stMetricEvaluator
+{
+public:
+	stDistance getDistance(HImagem *i1, HImagem *i2);
+	stDistance getDistance2(HImagem *i1, HImagem *i2);
+};
+
+class HImagemCmpKullbackLeibler: public stMetricEvaluator
+{
+public:
+	stDistance getDistance(HImagem *i1, HImagem *i2);
+	stDistance getDistance2(HImagem *i1, HImagem *i2);
 };
 
 #endif // BD_H

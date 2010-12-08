@@ -43,6 +43,8 @@ public slots:
 	void escolheMetrica(int valor);
 	void adicionaImagem();
 	void atualizaBD();
+
+	void buscaImagem();
 };
 
 #endif // MAINWINDOW_H

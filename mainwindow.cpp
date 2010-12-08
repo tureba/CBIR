@@ -54,9 +54,10 @@ void MainWindow::abreDialogImagem()
 				QMessageBox::information(this, tr("Image Viewer"), tr("Cannot load %1.").arg(*it));
 				continue;
 			}
-			//ui->imageLabel->setPixmap(QPixmap::fromImage(image));
 		}
 	ui->lineEdit->setText(files.join("; "));
+	if (QFile::exists(ui->lineEdit->text()))
+		ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(ui->lineEdit->text())));
 }
 
 void MainWindow::enterBD()
@@ -118,11 +119,8 @@ void MainWindow::adicionaImagem()
 {
 	if (bd != NULL) {
 		for (auto it = files.begin(); it != files.end(); it++)
-			if (QFile::exists(*it)) {
-				QString hash = bd->calcHash(*it);
-				if (!hash.isEmpty())
-					bd->insereImagem(hash);
-			}
+			if (QFile::exists(*it))
+				bd->insereImagem(bd->calcHash(*it));
 		atualizaBD();
 	}
 }
@@ -157,6 +155,27 @@ void MainWindow::atualizaBD()
 
 		QLabel * imagem;
 		for (auto it = bd->imagens.begin(); it != bd->imagens.end(); it++) {
+			imagem = new QLabel();
+			imagem->setPixmap(QPixmap::fromImage(bd->retornaImagem(*it).scaledToWidth(100)));
+			ui->gridLayout->addWidget(imagem);
+		}
+	}
+}
+
+void MainWindow::buscaImagem()
+{
+	while (ui->gridLayout_3->count() > 0)
+		delete ui->gridLayout_3->takeAt(0);
+
+	if ((bd != NULL) && (QFile::exists(ui->lineEdit->text()))) {
+		QStringList respostas;
+		if (ui->radioButton->isChecked())
+			respostas = bd->buscaN(QImage(ui->lineEdit->text()), ui->spinBox->value());
+		else
+			respostas = bd->buscaR(QImage(ui->lineEdit->text()), ui->doubleSpinBox->value());
+
+		QLabel * imagem;
+		for (auto it = respostas.begin(); it != respostas.end(); it++) {
 			imagem = new QLabel();
 			imagem->setPixmap(QPixmap::fromImage(bd->retornaImagem(*it).scaledToWidth(100)));
 			ui->gridLayout->addWidget(imagem);
