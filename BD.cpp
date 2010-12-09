@@ -12,8 +12,15 @@
 #include <cmath>
 #include <iostream>
 
-#include <arboretum/stDBMTree.h>
-#include <arboretum/stPlainDiskPageManager.h>
+#include <arboretum/stTypes.h>
+#include <arboretum/stUserLayerUtil.h>
+#include <arboretum/stBasicMetricEvaluators.h>
+#include <arboretum/stBasicObjects.h>
+#include <arboretum/stSlimTree.h>
+#include <arboretum/stSlimNode.h>
+#include <arboretum/stMemoryPageManager.h>
+#include <arboretum/stPage.h>
+
 
 BD::BD(QString nomeBD): arq(nomeBD), dir_base(QFileInfo(nomeBD).path() + "/"), usaHistograma(false), usaMatrizCoOcorrencia(false), fDist(fDistCosseno)
 {
@@ -219,18 +226,26 @@ QVector<float> BD::carregaVet(QString arquivo)
 	if (!_arq.open(QIODevice::ReadOnly | QIODevice::Text))
 		return QVector<float>(0);
 
-	QTextStream entrada(&_arq);
+	QDataStream entrada(&_arq);
 
-	float x;
 	QVector<float> resultado;
 
-	while (!_arq.atEnd()) {
-		entrada >> x;
-		resultado.append(x);
-	}
+	entrada >> resultado;
 	_arq.close();
 
 	return resultado;
+}
+
+QVector<float> BD::buscaVC(QString hash)
+{
+	if (usaHistograma && usaMatrizCoOcorrencia)
+		return carregaVet(dir_base + hash + ".histograma") + carregaVet(dir_base + hash + ".matrizcoocorrencia");
+	else if (usaHistograma)
+		return carregaVet(dir_base + hash + ".histograma");
+	else if (usaMatrizCoOcorrencia)
+		return carregaVet(dir_base + hash + ".matrizcoocorrencia");
+	else
+		return QVector<float>();
 }
 
 float BD::distMinkowski(QVector<float> a, QVector<float> b)
@@ -317,46 +332,129 @@ QStringList BD::buscaN(QImage imagem, int n)
 	if ((imagem.isNull()) || (n <= 0))
 		return QStringList();
 
+	QStringList lista;
+	QString hash = calcHash(imagem);
 	QVector<float> VC;
 	if (usaHistograma)
 		VC += extrairHistograma(imagem);
 	if (usaMatrizCoOcorrencia)
 		VC += extrairMatrizCoOcorrencia(imagem);
+	HImagem alvo(hash, VC);
+	stResult<HImagem> * resultado;
 
-	/*switch (fDist) {
-	case 1:
-	*/	stDBMTree<HImagem, HImagemCmpMinkowski> arvore(new stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
-	/*	break;
-	case 2:
-		stDBMTree<HImagem, HImagemCmp<distItakuraSaito>> arvore(stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
-		break;
-	case 3:
-		stDBMTree<HImagem, HImagemCmp<distKullbackLeibler>> arvore(stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
-		break;
-	case 4:
-		stDBMTree<HImagem, HImagemCmp<distCosseno>> arvore(stPlainDiskPageManager("/tmp/DBMTree.dat", 1024));
-		break;
-	}*/
+	switch (fDist) {
+	case fDistMinkowski: {
+			stSlimTree<HImagem, HImagemCmpMinkowski> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.NearestQuery(&alvo, n);
 
-	QStringList resultado;
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	case fDistItakuraSaito: {
+			stSlimTree<HImagem, HImagemCmpItakuraSaito> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.NearestQuery(&alvo, n);
 
-	return resultado;
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	case fDistKullbackLeibler: {
+			stSlimTree<HImagem, HImagemCmpKullbackLeibler> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.NearestQuery(&alvo, n);
+
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	case fDistCosseno: {
+			stSlimTree<HImagem, HImagemCmpCosseno> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.NearestQuery(&alvo, n);
+
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	}
+
+	return lista;
 }
 
 QStringList BD::buscaR(QImage imagem, float r)
 {
-	if ((imagem.isNull()) || (r <= .0f))
+	if ((imagem.isNull()) || (r <= .0))
 		return QStringList();
 
+	QStringList lista;
+	QString hash = calcHash(imagem);
 	QVector<float> VC;
 	if (usaHistograma)
 		VC += extrairHistograma(imagem);
 	if (usaMatrizCoOcorrencia)
 		VC += extrairMatrizCoOcorrencia(imagem);
+	HImagem alvo(hash, VC);
+	stResult<HImagem> * resultado;
 
-	QStringList resultado;
+	switch (fDist) {
+	case fDistMinkowski: {
+			stSlimTree<HImagem, HImagemCmpMinkowski> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.RangeQuery(&alvo, r);
 
-	return resultado;
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	case fDistItakuraSaito: {
+			stSlimTree<HImagem, HImagemCmpItakuraSaito> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.RangeQuery(&alvo, r);
+
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	case fDistKullbackLeibler: {
+			stSlimTree<HImagem, HImagemCmpKullbackLeibler> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.RangeQuery(&alvo, r);
+
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	case fDistCosseno: {
+			stSlimTree<HImagem, HImagemCmpCosseno> arvore(new stMemoryPageManager(1024));
+			for (auto it = imagens.begin(); it != imagens.end(); it++)
+				arvore.Add(new HImagem(*it, buscaVC(*it)));
+			resultado = arvore.RangeQuery(&alvo, r);
+
+			for (unsigned int i = 0; i < resultado->GetNumOfEntries(); i++)
+				lista.append((*resultado)[i].GetObject()->_hash);
+			delete resultado;
+		}
+		break;
+	}
+
+	return lista;
 }
 
 HImagem::HImagem(QString hash = QString(""), QVector<float> VC = QVector<float>()): _hash(hash), _VC(VC)
@@ -401,42 +499,42 @@ bool HImagem::IsEqual(HImagem * outra)
 	return (_hash == outra->_hash);
 }
 
-stDistance HImagemCmpCosseno::getDistance(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpCosseno::GetDistance(HImagem *i1, HImagem *i2)
 {
 	return BD::distCosseno(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpCosseno::getDistance2(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpCosseno::GetDistance2(HImagem *i1, HImagem *i2)
 {
 	return BD::distCosseno(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpMinkowski::getDistance(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpMinkowski::GetDistance(HImagem *i1, HImagem *i2)
 {
 	return BD::distMinkowski(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpMinkowski::getDistance2(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpMinkowski::GetDistance2(HImagem *i1, HImagem *i2)
 {
 	return BD::distMinkowski(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpItakuraSaito::getDistance(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpItakuraSaito::GetDistance(HImagem *i1, HImagem *i2)
 {
 	return BD::distItakuraSaito(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpItakuraSaito::getDistance2(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpItakuraSaito::GetDistance2(HImagem *i1, HImagem *i2)
 {
 	return BD::distItakuraSaito(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpKullbackLeibler::getDistance(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpKullbackLeibler::GetDistance(HImagem *i1, HImagem *i2)
 {
 	return BD::distKullbackLeibler(i1->_VC, i2->_VC);
 }
 
-stDistance HImagemCmpKullbackLeibler::getDistance2(HImagem *i1, HImagem *i2)
+stDistance HImagemCmpKullbackLeibler::GetDistance2(HImagem *i1, HImagem *i2)
 {
 	return BD::distKullbackLeibler(i1->_VC, i2->_VC);
 }

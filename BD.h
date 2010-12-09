@@ -44,8 +44,6 @@ public:
 	bool removeImagem(QString hash);
 	QImage retornaImagem(QString hash);
 
-	QVector<float> buscaVC(QString hash);
-
 	void calcCaracteristicas(QString hash);
 
 	QString calcHash(QImage imagem) const;
@@ -53,6 +51,7 @@ public:
 
 	void salvaVet(QVector<float> vet, QString arquivo);
 	QVector<float> carregaVet(QString arquivo);
+	QVector<float> buscaVC(QString hash);
 
 	static float distMinkowski(QVector<float> a, QVector<float> b);
 	static float distItakuraSaito(QVector<float> a, QVector<float> b);
@@ -83,32 +82,36 @@ public:
 
 };
 
-class HImagemCmpCosseno: public stMetricEvaluator
+class HImagemCmpCosseno
 {
 public:
-	stDistance getDistance(HImagem *i1, HImagem *i2);
-	stDistance getDistance2(HImagem *i1, HImagem *i2);
+	HImagemCmpCosseno(){}
+	stDistance GetDistance(HImagem *i1, HImagem *i2);
+	stDistance GetDistance2(HImagem *i1, HImagem *i2);
 };
 
-class HImagemCmpMinkowski: public stMetricEvaluator
+class HImagemCmpMinkowski
 {
 public:
-	stDistance getDistance(HImagem *i1, HImagem *i2);
-	stDistance getDistance2(HImagem *i1, HImagem *i2);
+	HImagemCmpMinkowski(){}
+	stDistance GetDistance(HImagem *i1, HImagem *i2);
+	stDistance GetDistance2(HImagem *i1, HImagem *i2);
 };
 
-class HImagemCmpItakuraSaito: public stMetricEvaluator
+class HImagemCmpItakuraSaito
 {
 public:
-	stDistance getDistance(HImagem *i1, HImagem *i2);
-	stDistance getDistance2(HImagem *i1, HImagem *i2);
+	HImagemCmpItakuraSaito(){}
+	stDistance GetDistance(HImagem *i1, HImagem *i2);
+	stDistance GetDistance2(HImagem *i1, HImagem *i2);
 };
 
-class HImagemCmpKullbackLeibler: public stMetricEvaluator
+class HImagemCmpKullbackLeibler
 {
 public:
-	stDistance getDistance(HImagem *i1, HImagem *i2);
-	stDistance getDistance2(HImagem *i1, HImagem *i2);
+	HImagemCmpKullbackLeibler(){}
+	stDistance GetDistance(HImagem *i1, HImagem *i2);
+	stDistance GetDistance2(HImagem *i1, HImagem *i2);
 };
 
 #endif // BD_H
