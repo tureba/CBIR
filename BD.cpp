@@ -391,6 +391,16 @@ stSize HImagem::GetSerializedSize()
 
 }
 
+HImagem * HImagem::Clone()
+{
+	return new HImagem(_hash, _VC);
+}
+
+bool HImagem::IsEqual(HImagem * outra)
+{
+	return (_hash == outra->_hash);
+}
+
 stDistance HImagemCmpCosseno::getDistance(HImagem *i1, HImagem *i2)
 {
 	return BD::distCosseno(i1->_VC, i2->_VC);

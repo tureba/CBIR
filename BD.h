@@ -66,7 +66,7 @@ public:
 	QStringList buscaR(QImage imagem, float r);
 };
 
-class HImagem : stObject
+class HImagem
 {
 
 public:
@@ -78,6 +78,8 @@ public:
 	const stByte * Serialize();
 	void Unserialize (const stByte *data, stSize datasize);
 	stSize GetSerializedSize();
+	HImagem * Clone();
+	bool IsEqual(HImagem * outra);
 
 };
 
