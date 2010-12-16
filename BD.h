@@ -85,33 +85,59 @@ public:
 class HImagemCmpCosseno
 {
 public:
-	HImagemCmpCosseno(){}
-	stDistance GetDistance(HImagem *i1, HImagem *i2);
-	stDistance GetDistance2(HImagem *i1, HImagem *i2);
+	static stDistance GetDistance(HImagem *i1, HImagem *i2)
+	{
+		return BD::distCosseno(i1->_VC, i2->_VC);
+	}
+
+	static stDistance GetDistance2(HImagem *i1, HImagem *i2)
+	{
+		return BD::distCosseno(i1->_VC, i2->_VC);
+	}
 };
 
 class HImagemCmpMinkowski
 {
 public:
-	HImagemCmpMinkowski(){}
-	stDistance GetDistance(HImagem *i1, HImagem *i2);
-	stDistance GetDistance2(HImagem *i1, HImagem *i2);
+	static stDistance GetDistance(HImagem *i1, HImagem *i2)
+	{
+		return BD::distMinkowski(i1->_VC, i2->_VC);
+	}
+
+	static stDistance GetDistance2(HImagem *i1, HImagem *i2)
+	{
+		return BD::distMinkowski(i1->_VC, i2->_VC);
+	}
 };
 
 class HImagemCmpItakuraSaito
 {
 public:
-	HImagemCmpItakuraSaito(){}
-	stDistance GetDistance(HImagem *i1, HImagem *i2);
-	stDistance GetDistance2(HImagem *i1, HImagem *i2);
+	static stDistance GetDistance(HImagem *i1, HImagem *i2)
+	{
+		return BD::distItakuraSaito(i1->_VC, i2->_VC);
+	}
+
+	static stDistance GetDistance2(HImagem *i1, HImagem *i2)
+	{
+		return BD::distItakuraSaito(i1->_VC, i2->_VC);
+	}
 };
 
 class HImagemCmpKullbackLeibler
 {
 public:
-	HImagemCmpKullbackLeibler(){}
-	stDistance GetDistance(HImagem *i1, HImagem *i2);
-	stDistance GetDistance2(HImagem *i1, HImagem *i2);
+	static stDistance GetDistance(HImagem *i1, HImagem *i2)
+	{
+		return BD::distKullbackLeibler(i1->_VC, i2->_VC);
+	}
+
+	static stDistance GetDistance2(HImagem *i1, HImagem *i2)
+	{
+		return BD::distKullbackLeibler(i1->_VC, i2->_VC);
+	}
 };
+
+
 
 #endif // BD_H

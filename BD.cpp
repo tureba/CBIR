@@ -16,9 +16,8 @@
 #include <arboretum/stUserLayerUtil.h>
 #include <arboretum/stBasicMetricEvaluators.h>
 #include <arboretum/stBasicObjects.h>
-#include <arboretum/stSlimTree.h>
-#include <arboretum/stSlimNode.h>
-#include <arboretum/stMemoryPageManager.h>
+#include <arboretum/stDummyTree.h>
+#include <arboretum/stPlainDiskPageManager.h>
 #include <arboretum/stPage.h>
 
 
@@ -344,7 +343,7 @@ QStringList BD::buscaN(QImage imagem, int n)
 
 	switch (fDist) {
 	case fDistMinkowski: {
-			stSlimTree<HImagem, HImagemCmpMinkowski> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpMinkowski> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.NearestQuery(&alvo, n);
@@ -355,7 +354,7 @@ QStringList BD::buscaN(QImage imagem, int n)
 		}
 		break;
 	case fDistItakuraSaito: {
-			stSlimTree<HImagem, HImagemCmpItakuraSaito> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpItakuraSaito> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.NearestQuery(&alvo, n);
@@ -366,7 +365,7 @@ QStringList BD::buscaN(QImage imagem, int n)
 		}
 		break;
 	case fDistKullbackLeibler: {
-			stSlimTree<HImagem, HImagemCmpKullbackLeibler> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpKullbackLeibler> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.NearestQuery(&alvo, n);
@@ -377,7 +376,7 @@ QStringList BD::buscaN(QImage imagem, int n)
 		}
 		break;
 	case fDistCosseno: {
-			stSlimTree<HImagem, HImagemCmpCosseno> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpCosseno> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.NearestQuery(&alvo, n);
@@ -409,7 +408,7 @@ QStringList BD::buscaR(QImage imagem, float r)
 
 	switch (fDist) {
 	case fDistMinkowski: {
-			stSlimTree<HImagem, HImagemCmpMinkowski> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpMinkowski> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.RangeQuery(&alvo, r);
@@ -420,7 +419,7 @@ QStringList BD::buscaR(QImage imagem, float r)
 		}
 		break;
 	case fDistItakuraSaito: {
-			stSlimTree<HImagem, HImagemCmpItakuraSaito> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpItakuraSaito> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.RangeQuery(&alvo, r);
@@ -431,7 +430,7 @@ QStringList BD::buscaR(QImage imagem, float r)
 		}
 		break;
 	case fDistKullbackLeibler: {
-			stSlimTree<HImagem, HImagemCmpKullbackLeibler> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpKullbackLeibler> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.RangeQuery(&alvo, r);
@@ -442,7 +441,7 @@ QStringList BD::buscaR(QImage imagem, float r)
 		}
 		break;
 	case fDistCosseno: {
-			stSlimTree<HImagem, HImagemCmpCosseno> arvore(new stMemoryPageManager(1024));
+			stDummyTree<HImagem, HImagemCmpCosseno> arvore(new stPlainDiskPageManager("/tmp/CBIR.db", 1024));
 			for (auto it = imagens.begin(); it != imagens.end(); it++)
 				arvore.Add(new HImagem(*it, buscaVC(*it)));
 			resultado = arvore.RangeQuery(&alvo, r);
@@ -499,42 +498,3 @@ bool HImagem::IsEqual(HImagem * outra)
 	return (_hash == outra->_hash);
 }
 
-stDistance HImagemCmpCosseno::GetDistance(HImagem *i1, HImagem *i2)
-{
-	return BD::distCosseno(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpCosseno::GetDistance2(HImagem *i1, HImagem *i2)
-{
-	return BD::distCosseno(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpMinkowski::GetDistance(HImagem *i1, HImagem *i2)
-{
-	return BD::distMinkowski(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpMinkowski::GetDistance2(HImagem *i1, HImagem *i2)
-{
-	return BD::distMinkowski(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpItakuraSaito::GetDistance(HImagem *i1, HImagem *i2)
-{
-	return BD::distItakuraSaito(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpItakuraSaito::GetDistance2(HImagem *i1, HImagem *i2)
-{
-	return BD::distItakuraSaito(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpKullbackLeibler::GetDistance(HImagem *i1, HImagem *i2)
-{
-	return BD::distKullbackLeibler(i1->_VC, i2->_VC);
-}
-
-stDistance HImagemCmpKullbackLeibler::GetDistance2(HImagem *i1, HImagem *i2)
-{
-	return BD::distKullbackLeibler(i1->_VC, i2->_VC);
-}
